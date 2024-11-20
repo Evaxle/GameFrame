@@ -4,124 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GameFrame By Evan</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #e1eec3, #f05053);
-            overflow: hidden;
-        }
-        #navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            position: absolute;
-            width: 100%;
-            z-index: 1000;
-            transition: top 0.3s, left 0.3s, right 0.3s, bottom 0.3s;
-            box-sizing: border-box;
-        }
-        #navbar input[type="text"] {
-            flex: 2;
-            padding: 10px;
-            margin: 0 10px;
-            border: none;
-            border-radius: 5px;
-            max-width: calc(100% - 140px);
-            box-sizing: border-box;
-        }
-        #navbar button {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background: #6a11cb;
-            color: white;
-            cursor: pointer;
-            margin: 0 5px;
-            transition: background 0.3s, width 0.3s;
-            flex: 1;
-            max-width: 100px;
-            box-sizing: border-box;
-        }
-        #navbar button:hover {
-            background: #2575fc;
-        }
-        #urlFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        #navbar.hidden {
-            display: none;
-        }
-        #dragButton {
-            width: 30px;
-            height: 30px;
-            background: #6a11cb;
-            border: none;
-            border-radius: 50%;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            cursor: grab;
-            z-index: 1001;
-        }
-        #popup, #performancePopup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1100;
-        }
-        #popup button, #performancePopup button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background: #6a11cb;
-            color: white;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s;
-        }
-        #popup button:hover, #performancePopup button:hover {
-            background: #2575fc;
-        }
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-    </style>
+
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="navbarContainer">
@@ -131,21 +15,15 @@
             <button id="newFeaturesButton">New Features</button>
             <input type="text" id="urlInput" placeholder="Enter URL" />
             <button id="loadButton">Load</button>
-            <div class="dropdown">
-                <button id="fpsButton">FPS</button>
-                <div class="dropdown-content">
-                    <a href="#" data-fps="30">30 FPS</a>
-                    <a href="#" data-fps="60">60 FPS</a>
-                    <a href="#" data-fps="120">120 FPS</a>
-                    <a href="#" data-fps="240">240 FPS</a>
-                </div>
-            </div>
-            <div class="dropdown" id="moreDropdown">
-                <button>More</button>
-                <div class="dropdown-content" id="moreButtons"></div>
-            </div>
         </div>
     </div>
+    <div id="tabs">
+        <button id="newTabButton">+</button><br>
+      </div><br>
+
+    <!-- Iframe container where the iframes will go -->
+    <div id="iframeContainer"></div>
+    
     <iframe id="urlFrame"></iframe>
     <div id="popup">
         <h2>New Features</h2>
@@ -158,122 +36,140 @@
         </ul>
         <button id="closePopupButton">Close</button>
     </div>
-    <div id="performancePopup">
-        <h2>Performance Details</h2>
-        <p>FPS: <span id="fps">60</span></p>
-        <p>Frame Load Time: <span id="frameLoadTime">0ms</span></p>
-        <button id="closePerformanceButton">Close</button>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
     const urlInput = document.getElementById('urlInput');
     const loadButton = document.getElementById('loadButton');
-    const urlFrame = document.getElementById('urlFrame');
-    const navbar = document.getElementById('navbar');
-    const performanceButton = document.getElementById('performanceButton');
-    const newFeaturesButton = document.getElementById('newFeaturesButton');
-    const popup = document.getElementById('popup');
-    const closePopupButton = document.getElementById('closePopupButton');
-    const performancePopup = document.getElementById('performancePopup');
-    const closePerformanceButton = document.getElementById('closePerformanceButton');
-    const dragButton = document.getElementById('dragButton');
+    const newTabButton = document.getElementById('newTabButton');
+    const tabs = document.getElementById('tabs');
+    const iframeContainer = document.getElementById('iframeContainer');
 
-    // Load the URL from local storage if it exists
-    const storedUrl = localStorage.getItem('storedUrl');
-    if (storedUrl) {
-        urlFrame.src = storedUrl;
-        urlInput.value = storedUrl;
-    };
+    let tabCount = 0;
+    let activeTabId = null;
 
+    // Function to create a new tab
+    function createTab(url) {
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        tab.dataset.tabId = `tab-${tabCount}`;
+        tab.innerHTML = `
+            <span>${url}</span>
+            <button class="close-button">X</button>
+        `;
+        const closeButton = tab.querySelector('.close-button');
+        closeButton.addEventListener('click', () => removeTab(tab.dataset.tabId));
+        tab.addEventListener('click', () => switchTab(tab.dataset.tabId));
+        tabs.insertBefore(tab, newTabButton);
+
+        tabCount++;
+        return tab;
+    }
+
+    // Function to create an iframe
+    function createIframe(url) {
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.dataset.tabId = `tab-${tabCount - 1}`; // Associate iframe with the last tab
+        iframe.style.display = 'none';
+        iframeContainer.appendChild(iframe);
+        return iframe;
+    }
+
+    // Function to switch between tabs
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.tabId === tabId);
+        });
+        document.querySelectorAll('iframe').forEach(iframe => {
+            iframe.style.display = iframe.dataset.tabId === tabId ? 'block' : 'none';
+        });
+        activeTabId = tabId;
+        saveTabsToLocalStorage();  // Save the current state after switching tabs
+    }
+
+    // Function to remove a tab and its iframe
+    function removeTab(tabId) {
+        const tab = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+        const iframe = document.querySelector(`iframe[data-tab-id="${tabId}"]`);
+        if (tab && iframe) {
+            tab.remove();
+            iframe.remove();
+            saveTabsToLocalStorage();  // Save the current state after removal
+        }
+    }
+
+    // Function to save tabs and iframes to localStorage
+    function saveTabsToLocalStorage() {
+        const tabsData = [];
+        document.querySelectorAll('.tab').forEach(tab => {
+            const url = tab.querySelector('span').textContent;
+            const tabId = tab.dataset.tabId;
+            const iframeSrc = document.querySelector(`iframe[data-tab-id="${tabId}"]`).src;
+            tabsData.push({ tabId, url, iframeSrc });
+        });
+        localStorage.setItem('tabsData', JSON.stringify(tabsData));
+    }
+
+    // Function to load tabs and iframes from localStorage
+    function loadTabsFromLocalStorage() {
+        const tabsData = JSON.parse(localStorage.getItem('tabsData')) || [];
+        tabsData.forEach(data => {
+            createTab(data.url);
+            createIframe(data.iframeSrc);
+        });
+
+        // Set the active tab if there is a tab saved
+        if (tabsData.length > 0) {
+            switchTab(tabsData[tabsData.length - 1].tabId); // Default to the last opened tab
+        }
+    }
+
+    // Function to load the URL into the active tab (for normal URLs and redirects)
     function loadURL() {
-        let url = urlInput.value.trim();
-        // Add 'http://' if the URL doesn't have 'http://' or 'https://'
-        if (!/^https?:\/\//i.test(url)) {
-            url = 'http://' + url;
-        };
-        // Set the iframe source and save to local storage
-        urlFrame.src = url;
-        localStorage.setItem('storedUrl', url);
-    };
+        const url = urlInput.value.trim();
+        if (activeTabId) {
+            // Check if it's a redirect URL
+            if (url.startsWith('redirect://')) {
+                const redirectUrl = url.slice(10);  // Remove 'redirect://' prefix
+                createTab(redirectUrl);  // Create a new tab for the redirect
+                createIframe(redirectUrl);  // Create an iframe for the redirect URL
+                switchTab(`tab-${tabCount - 1}`);  // Switch to the new tab
+            } else {
+                const iframe = document.querySelector(`iframe[data-tab-id="${activeTabId}"]`);
+                iframe.src = /^https?:\/\//i.test(url) ? url : `http://${url}`;  // Handle protocol if missing
+                const tab = document.querySelector(`.tab[data-tab-id="${activeTabId}"]`);
+                tab.querySelector('span').textContent = url;  // Update the tab's URL text
+            }
+            saveTabsToLocalStorage();  // Save the current state after updating the URL
+        }
+    }
 
-    loadButton.addEventListener('click', loadURL);
+    // Event listener for the Load button to update the current active tab
+    loadButton.addEventListener('click', function() {
+        const url = urlInput.value.trim();
+        if (url) {
+            loadURL();  // Call loadURL to update the iframe or create a new tab
+        }
+    });
+
+    // Event listener for the "+" button to add a new tab
+    newTabButton.addEventListener('click', function() {
+        createTab('about:blank');
+        createIframe('about:blank');
+    });
+
+    // Event listener for the Enter key in the URL input field
     urlInput.addEventListener('keydown', function(event) {
         if (event.key === 'Enter') {
-            loadURL();
+            loadURL();  // Trigger the loadURL function when Enter is pressed
         }
     });
 
-    newFeaturesButton.addEventListener('click', function() {
-        popup.style.display = 'block';
-    });
-
-    closePopupButton.addEventListener('click', function() {
-        popup.style.display = 'none';
-    });
-
-    performanceButton.addEventListener('click', function() {
-        // For demonstration, static values are shown
-        // In a real scenario, you would gather these metrics dynamically
-        const fps = 60; // Example value
-        const frameLoadTime = 16.67; // Example value in milliseconds
-        document.getElementById('fps').innerText = fps;
-        document.getElementById('frameLoadTime').innerText = frameLoadTime + 'ms';
-        performancePopup.style.display = 'block';
-    });
-
-    closePerformanceButton.addEventListener('click', function() {
-        performancePopup.style.display = 'none';
-    });
-
-    let isDragging = false;
-    let offset = { x: 0, y: 0 };
-
-    dragButton.addEventListener('mousedown', function(event) {
-        isDragging = true;
-        offset.x = event.clientX - navbar.offsetLeft;
-        offset.y = event.clientY - navbar.offsetTop;
-        dragButton.style.cursor = 'grabbing';
-    });
-
-    document.addEventListener('mousemove', function(event) {
-        if (isDragging) {
-            navbar.style.left = `${event.clientX - offset.x}px`;
-            navbar.style.top = `${event.clientY - offset.y}px`;
-        }
-    });
-
-    document.addEventListener('mouseup', function() {
-        isDragging = false;
-        dragButton.style.cursor = 'grab';
-    });
-
-    const fpsLinks = document.querySelectorAll('.dropdown-content a');
-    const fpsDisplay = document.getElementById('fps');
-
-    fpsLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.preventDefault();
-            const fps = parseInt(this.getAttribute('data-fps'));
-            setFPS(fps);
-        });
-    });
-
-    function setFPS(fps) {
-        fpsDisplay.innerText = fps;
-        urlFrame.contentWindow.postMessage({ type: 'SET_FPS', fps: fps }, '*');
-    };
-
-    window.addEventListener('message', function(event) {
-        if (event.data.type === 'SET_FPS') {
-            const fps = event.data.fps;
-            // Implement logic to adjust FPS based on the received value.
-            console.log(`FPS set to ${fps}`);
-        }
-    });
+    // Load tabs from localStorage on page load
+    loadTabsFromLocalStorage();
 });
+
     </script>
+    
 </body>
-            const navbar = document.getElementById('navbar');
-            navbar.classList.remove('hidden');
-        }
-n>
 </html>
