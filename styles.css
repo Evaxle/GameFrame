@@ -1,0 +1,206 @@
+/* General Styles for Body and HTML */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #e1eec3, #f05053);
+    overflow: hidden;
+}
+
+/* Navbar Styles */
+#navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    position: relative;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+/* Input Field in Navbar */
+#navbar input[type="text"] {
+    flex: 2;
+    padding: 10px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    max-width: calc(100% - 140px);
+    box-sizing: border-box;
+}
+
+/* Button Styles in Navbar */
+#navbar button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #6a11cb;
+    color: white;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: background 0.3s;
+    flex: 1;
+    max-width: 100px;
+    box-sizing: border-box;
+}
+
+/* Hover effect for buttons */
+#navbar button:hover {
+    background: #2575fc;
+}
+
+/* Tabs Styles */
+#tabs {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 5px 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+    position: fixed;
+    width: 100%;
+    z-index: 999;
+}
+
+/* Tab Style */
+.tab {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    margin-right: 5px;
+    background: #444;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Active Tab Style */
+.tab.active {
+    background: #6a11cb;
+}
+
+/* Close Button on Tabs */
+.close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: #6a11cb;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: background 0.3s;
+}
+
+/* Hover effect for close button */
+.close-button:hover {
+    background: #2575fc;
+}
+
+/* New Tab Button */
+#newTabButton {
+    background: #6a11cb;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+}
+
+/* iFrame Style */
+iframe {
+    width: 100%;
+    height: calc(100vh - 160px); /* 100vh (viewport height) - 160px for navbar (60px) and tabs (100px) */
+    border: none;
+    position: absolute;
+    top: 160px; /* Position below the navbar and tabs */
+}
+
+
+/* Dropdown Menu Styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Popup Styles */
+#popup, #performancePopup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1100;
+}
+
+#popup button, #performancePopup button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #6a11cb;
+    color: white;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.3s;
+}
+
+#popup button:hover, #performancePopup button:hover {
+    background: #2575fc;
+}
+
+/* Draggable Button */
+#dragButton {
+    width: 30px;
+    height: 30px;
+    background: #6a11cb;
+    border: none;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: grab;
+    z-index: 1001;
+}
+
+/* Hidden Navbar */
+#navbar.hidden {
+    display: none;
+}
